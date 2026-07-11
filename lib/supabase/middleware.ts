@@ -1,7 +1,18 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_PATHS = ["/login", "/auth/callback"];
+const AUTH_PATHS = ["/login", "/auth/callback"];
+const ONBOARDING_PATHS = [
+  "/welcome",
+  "/limits",
+  "/focus-hours",
+  "/goals",
+  "/mottos",
+];
+
+function startsWithAny(path: string, list: string[]) {
+  return list.some((p) => path === p || path.startsWith(p + "/"));
+}
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -32,11 +43,44 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
-  const isPublic = PUBLIC_PATHS.some((p) => path.startsWith(p));
+  const isAuthPath = startsWithAny(path, AUTH_PATHS);
+  const isOnboardingPath = startsWithAny(path, ONBOARDING_PATHS);
 
-  if (!user && !isPublic) {
+  // Unauthenticated → force to /login
+  if (!user) {
+    if (isAuthPath) return response;
     const url = request.nextUrl.clone();
     url.pathname = "/login";
+    return NextResponse.redirect(url);
+  }
+
+  // Authenticated → look up onboarded_at
+  const { data: config } = await supabase
+    .from("user_config")
+    .select("onboarded_at")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  const onboarded = !!config?.onboarded_at;
+
+  // Signed in but on /login → send home
+  if (isAuthPath) {
+    const url = request.nextUrl.clone();
+    url.pathname = onboarded ? "/today" : "/welcome";
+    return NextResponse.redirect(url);
+  }
+
+  // Not onboarded and outside onboarding → send to /welcome
+  if (!onboarded && !isOnboardingPath) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/welcome";
+    return NextResponse.redirect(url);
+  }
+
+  // Onboarded and on onboarding → send to /today
+  if (onboarded && isOnboardingPath) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/today";
     return NextResponse.redirect(url);
   }
 
