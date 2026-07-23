@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   title: "Sarvam Planner",
@@ -18,7 +19,9 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body className="bg-ink-0 text-blue-50 font-sans">{children}</body>
+      <body className="bg-ink-0 text-blue-50 font-sans">
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }
