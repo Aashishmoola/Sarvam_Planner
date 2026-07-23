@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useFormState, useFormStatus } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { LabeledInput } from "@/components/ui/labeled-input";
 import {
@@ -43,15 +42,6 @@ const CYCLE_OPTIONS = [
   },
 ];
 
-function SubmitButton({ label }: { label: string }) {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" disabled={pending}>
-      {pending ? "Saving…" : label}
-    </Button>
-  );
-}
-
 function DeleteButton({
   onClick,
   pending,
@@ -84,20 +74,64 @@ export function GoalsEditor({
   maxShort: number;
   nextHref: string;
 }) {
-  const [ltState, ltAction] = useFormState<GoalsState, FormData>(
-    addLongTermGoal,
-    {},
-  );
-  const [stState, stAction] = useFormState<GoalsState, FormData>(
-    addShortTermGoal,
-    {},
-  );
+  // Long-term add form (controlled so we can clear it on success).
+  const [ltTitle, setLtTitle] = useState("");
+  const [ltDesc, setLtDesc] = useState("");
+  const [ltState, setLtState] = useState<GoalsState>({});
+  const [ltPending, setLtPending] = useState(false);
+
+  // Short-term add form.
+  const [stTitle, setStTitle] = useState("");
+  const [stDesc, setStDesc] = useState("");
+  const [stParent, setStParent] = useState("");
   const [cycle, setCycle] = useState<number>(14);
+  const [stState, setStState] = useState<GoalsState>({});
+  const [stPending, setStPending] = useState(false);
+
   const [isPending, startTransition] = useTransition();
 
   const canAddLong = longTerm.length < maxLong;
   const canAddShort = shortTerm.length < maxShort;
   const canContinue = longTerm.length > 0 && shortTerm.length > 0;
+
+  async function handleAddLong(e: React.FormEvent) {
+    e.preventDefault();
+    setLtPending(true);
+    try {
+      const fd = new FormData();
+      fd.set("title", ltTitle);
+      fd.set("description", ltDesc);
+      const s = await addLongTermGoal({}, fd);
+      setLtState(s);
+      if (!s.error) {
+        setLtTitle("");
+        setLtDesc("");
+      }
+    } finally {
+      setLtPending(false);
+    }
+  }
+
+  async function handleAddShort(e: React.FormEvent) {
+    e.preventDefault();
+    setStPending(true);
+    try {
+      const fd = new FormData();
+      fd.set("title", stTitle);
+      fd.set("description", stDesc);
+      fd.set("cycle_length_days", String(cycle));
+      fd.set("parent_long_term_goal_id", stParent || "");
+      const s = await addShortTermGoal({}, fd);
+      setStState(s);
+      if (!s.error) {
+        setStTitle("");
+        setStDesc("");
+        setStParent("");
+      }
+    } finally {
+      setStPending(false);
+    }
+  }
 
   return (
     <div className="space-y-12">
@@ -133,23 +167,27 @@ export function GoalsEditor({
         </div>
 
         {canAddLong && (
-          <form action={ltAction} className="mt-5 space-y-3">
+          <form onSubmit={handleAddLong} className="mt-5 space-y-3">
             <LabeledInput
-              name="title"
               label="Title"
               placeholder="Ship a working MVP"
               required
+              value={ltTitle}
+              onChange={(e) => setLtTitle(e.target.value)}
               error={ltState.fieldErrors?.title}
             />
             <LabeledInput
-              name="description"
               label="Description (optional)"
               placeholder="Why this matters"
+              value={ltDesc}
+              onChange={(e) => setLtDesc(e.target.value)}
             />
             {ltState.error && (
               <p className="text-xs text-blue-300">{ltState.error}</p>
             )}
-            <SubmitButton label="Add long-term goal" />
+            <Button type="submit" disabled={ltPending}>
+              {ltPending ? "Saving…" : "Add long-term goal"}
+            </Button>
           </form>
         )}
       </section>
@@ -191,18 +229,20 @@ export function GoalsEditor({
         </div>
 
         {canAddShort && (
-          <form action={stAction} className="mt-5 space-y-4">
+          <form onSubmit={handleAddShort} className="mt-5 space-y-4">
             <LabeledInput
-              name="title"
               label="Title"
               placeholder="Write for 30 min every morning"
               required
+              value={stTitle}
+              onChange={(e) => setStTitle(e.target.value)}
               error={stState.fieldErrors?.title}
             />
             <LabeledInput
-              name="description"
               label="Description (optional)"
               placeholder="Approach, technique, etc."
+              value={stDesc}
+              onChange={(e) => setStDesc(e.target.value)}
             />
 
             {longTerm.length > 0 && (
@@ -211,8 +251,8 @@ export function GoalsEditor({
                   Parent long-term goal (optional)
                 </span>
                 <select
-                  name="parent_long_term_goal_id"
-                  defaultValue=""
+                  value={stParent}
+                  onChange={(e) => setStParent(e.target.value)}
                   className="mt-1 block w-full rounded-none border-b border-gray-soft bg-transparent py-2 text-sm text-blue-50 outline-none focus:border-blue-400"
                 >
                   <option value="" className="bg-ink-1">
@@ -273,7 +313,9 @@ export function GoalsEditor({
             {stState.error && (
               <p className="text-xs text-blue-300">{stState.error}</p>
             )}
-            <SubmitButton label="Add short-term goal" />
+            <Button type="submit" disabled={stPending}>
+              {stPending ? "Saving…" : "Add short-term goal"}
+            </Button>
           </form>
         )}
       </section>

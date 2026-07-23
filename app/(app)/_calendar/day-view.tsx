@@ -110,21 +110,37 @@ export function DayView({ data }: { data: DayData }) {
       ? data.mottos[dayOfYear(data.date) % data.mottos.length]
       : null;
 
-  // ── Mutations ────────────────────────────────────────────────────
-  const assignMut = useMutation({
-    mutationFn: async (input: {
-      date: string;
-      short_term_goal_id: string;
-      start_time: string;
-      end_time: string;
-    }) => {
-      const r = await assignGoalToSlot(input);
-      if (!r.ok) throw new Error(r.error);
-      return r.data;
-    },
-    onSuccess: (row) => setAssignments((a) => [...a, row]),
-    onError: (e: Error) => setPickerError(e.message),
-  });
+  // ── Place goal (direct async handler so every failure surfaces) ──
+  const [assigning, setAssigning] = useState(false);
+
+  async function handlePick(
+    goalId: string,
+    slot: { start: number; end: number },
+  ) {
+    setPickerError(null);
+    setAssigning(true);
+    try {
+      const r = await assignGoalToSlot({
+        date: data.date,
+        short_term_goal_id: goalId,
+        start_time: minutesToHHMM(slot.start),
+        end_time: minutesToHHMM(slot.end),
+      });
+      if (!r.ok) {
+        setPickerError(r.error);
+        return;
+      }
+      setAssignments((a) => [...a, r.data]);
+      setModal({ kind: "none" });
+    } catch (e) {
+      console.error("place goal failed", e);
+      setPickerError(
+        e instanceof Error ? e.message : "Could not place the goal.",
+      );
+    } finally {
+      setAssigning(false);
+    }
+  }
 
   const checkMut = useMutation({
     mutationFn: async (input: {
@@ -391,14 +407,17 @@ export function DayView({ data }: { data: DayData }) {
               key={`slot-${i}`}
               type="button"
               disabled={!editable}
-              onClick={() => editable && openPicker(item.startMinutes, item.endMinutes)}
-              className={`flex h-11 w-full items-center justify-between px-3 text-left transition-colors ${
-                focus.intensity === "high"
-                  ? "bg-blue-400/5"
-                  : ""
-              } ${
+              onClick={() =>
+                editable && openPicker(item.startMinutes, item.endMinutes)
+              }
+              style={{
+                backgroundColor: focus.period
+                  ? focus.period.color + "14"
+                  : undefined,
+              }}
+              className={`flex h-11 w-full items-center justify-between px-3 text-left transition-filter ${
                 editable
-                  ? "hover:bg-blue-400/10 focus:bg-blue-400/10 focus:outline-none"
+                  ? "cursor-pointer hover:brightness-125 focus:brightness-150 focus:outline-none"
                   : "cursor-default"
               }`}
             >
@@ -440,22 +459,11 @@ export function DayView({ data }: { data: DayData }) {
           endMinutes={modal.end}
           offFocus={modal.offFocus}
           goals={data.shortTermGoals}
-          pending={assignMut.isPending}
+          pending={assigning}
           error={pickerError}
           onCancel={() => setModal({ kind: "none" })}
           onPick={(goalId) =>
-            assignMut.mutate(
-              {
-                date: data.date,
-                short_term_goal_id: goalId,
-                start_time: minutesToHHMM(modal.start),
-                end_time: minutesToHHMM(modal.end),
-              },
-              {
-                onSuccess: () => setModal({ kind: "none" }),
-                onError: (e) => setPickerError(e.message),
-              },
-            )
+            handlePick(goalId, { start: modal.start, end: modal.end })
           }
         />
       )}

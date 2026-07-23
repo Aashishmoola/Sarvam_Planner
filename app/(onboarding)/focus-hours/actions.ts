@@ -3,36 +3,21 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { focusPeriodSchema } from "@/lib/validation/focus-periods";
+import { saveFocusPeriodsSchema } from "@/lib/validation/focus-periods";
 
-export type FocusPeriodsState = {
-  error?: string;
-  fieldErrors?: Record<string, string>;
-};
+export type FocusPeriodsState = { error?: string };
 
-export async function addFocusPeriod(
-  _prev: FocusPeriodsState,
-  formData: FormData,
+/**
+ * Replace the user's focus periods with the painted block runs from the
+ * focus-hours editor. Each run becomes one focus_periods row applied to
+ * every day of the week (the editor paints a daily template).
+ */
+export async function saveFocusPeriods(
+  input: unknown,
 ): Promise<FocusPeriodsState> {
-  const parsed = focusPeriodSchema.safeParse({
-    label: formData.get("label"),
-    color: formData.get("color"),
-    start_time: formData.get("start_time"),
-    end_time: formData.get("end_time"),
-    intensity: formData.get("intensity"),
-    days_of_week: formData
-      .getAll("days_of_week")
-      .map((v) => Number(v))
-      .filter((n) => Number.isInteger(n) && n >= 0 && n <= 6),
-  });
-
+  const parsed = saveFocusPeriodsSchema.safeParse(input);
   if (!parsed.success) {
-    const fieldErrors: Record<string, string> = {};
-    for (const issue of parsed.error.issues) {
-      const key = issue.path.join(".");
-      if (key) fieldErrors[key] = issue.message;
-    }
-    return { error: "Please check the fields", fieldErrors };
+    return { error: "Please assign every waking block before continuing." };
   }
 
   const supabase = createSupabaseServerClient();
@@ -41,30 +26,31 @@ export async function addFocusPeriod(
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not signed in" };
 
-  const { error } = await supabase.from("focus_periods").insert({
-    user_id: user.id,
-    ...parsed.data,
-  });
-
-  if (error) return { error: error.message };
-  revalidatePath("/focus-hours");
-  return {};
-}
-
-export async function deleteFocusPeriod(id: string) {
-  const supabase = createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return;
-
-  await supabase
+  // Replace the whole set atomically: delete then insert.
+  const { error: delErr } = await supabase
     .from("focus_periods")
     .delete()
-    .eq("id", id)
     .eq("user_id", user.id);
+  if (delErr) return { error: delErr.message };
+
+  if (parsed.data.periods.length > 0) {
+    const rows = parsed.data.periods.map((p) => ({
+      user_id: user.id,
+      label: p.label,
+      color: p.color,
+      start_time: p.start_time,
+      end_time: p.end_time,
+      intensity: p.intensity,
+      days_of_week: [0, 1, 2, 3, 4, 5, 6],
+    }));
+    const { error: insErr } = await supabase.from("focus_periods").insert(rows);
+    if (insErr) return { error: insErr.message };
+  }
 
   revalidatePath("/focus-hours");
+  revalidatePath("/settings/focus-hours");
+  revalidatePath("/today");
+  return {};
 }
 
 export async function finishFocusHours(redirectTo: string) {
