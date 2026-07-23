@@ -27,6 +27,11 @@ yarn-error.log*
 
 # local env files
 .env*.local
+.env
+
+# claude code local config (may contain API keys / personal settings)
+.claude/settings.json
+.claude/settings.local.json
 
 # vercel
 .vercel
