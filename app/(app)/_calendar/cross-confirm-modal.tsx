@@ -37,7 +37,7 @@ export function CrossConfirmModal({
       role="dialog"
       aria-modal="true"
       aria-label="Confirm cross-off"
-      className="fixed inset-0 z-40 flex items-center justify-center bg-ink-0/70 animate-fadein"
+      className="fixed inset-0 z-40 flex items-center justify-center bg-ink-3/70 animate-fadein"
       onClick={onCancel}
     >
       <div

@@ -14,9 +14,9 @@ export function HoorayPopup({ onDismiss }: { onDismiss: () => void }) {
       aria-modal="true"
       aria-label="Goal completed"
       onClick={onDismiss}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-ink-0/80 animate-fadein"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-ink-3/80 animate-fadein"
     >
-      <p className="text-lg font-medium tracking-tight text-blue-200 animate-pop">
+      <p className="text-lg font-medium tracking-tight text-blue-100 animate-pop">
         Hooray. That&apos;s one.
       </p>
     </div>

@@ -37,7 +37,7 @@ export function CheckConfirmModal({
       role="dialog"
       aria-modal="true"
       aria-label="Confirm check-off"
-      className="fixed inset-0 z-40 flex items-center justify-center bg-ink-0/70 animate-fadein"
+      className="fixed inset-0 z-40 flex items-center justify-center bg-ink-3/70 animate-fadein"
       onClick={onCancel}
     >
       <div
@@ -64,7 +64,7 @@ export function CheckConfirmModal({
                   onClick={() => setEffort(n)}
                   className={`tap-target border py-2 text-sm transition-colors disabled:opacity-40 ${
                     active
-                      ? "border-blue-400 bg-blue-400/10 text-blue-100"
+                      ? "border-blue-400 bg-blue-400/10 text-blue-600"
                       : "border-gray-soft text-gray-fade hover:border-blue-400"
                   }`}
                   aria-pressed={active}
@@ -104,7 +104,7 @@ export function CheckConfirmModal({
             type="button"
             disabled={effort === null || pending}
             onClick={() => effort && onConfirm(effort, journal)}
-            className="tap-target border border-blue-400 px-4 text-xs uppercase tracking-widest text-blue-100 hover:bg-blue-400 hover:text-ink-0 disabled:opacity-40"
+            className="tap-target bg-blue-400 border border-blue-400 px-4 text-xs uppercase tracking-widest text-blue-100 hover:bg-blue-500 disabled:opacity-40"
           >
             {pending ? "Saving…" : "Yes, done"}
           </button>

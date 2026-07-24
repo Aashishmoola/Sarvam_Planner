@@ -41,7 +41,7 @@ export function GoalPicker({
       role="dialog"
       aria-modal="true"
       aria-label="Place a goal"
-      className="fixed inset-0 z-40 flex items-end justify-center bg-ink-0/70 animate-fadein sm:items-center"
+      className="fixed inset-0 z-40 flex items-end justify-center bg-ink-3/70 animate-fadein sm:items-center"
       onClick={onCancel}
     >
       <div
@@ -81,7 +81,7 @@ export function GoalPicker({
                   onClick={() => setSelected(g.id)}
                   className={`block w-full border px-3 py-2 text-left text-sm transition-colors disabled:opacity-40 ${
                     active
-                      ? "border-blue-400 bg-blue-400/10 text-blue-100"
+                      ? "border-blue-400 bg-blue-400/10 text-blue-600"
                       : "border-gray-soft text-blue-50 hover:border-blue-400"
                   }`}
                 >
@@ -110,7 +110,7 @@ export function GoalPicker({
             type="button"
             disabled={!selected || pending}
             onClick={() => selected && onPick(selected)}
-            className="tap-target border border-blue-400 px-4 text-xs uppercase tracking-widest text-blue-100 hover:bg-blue-400 hover:text-ink-0 disabled:opacity-40"
+            className="tap-target bg-blue-400 border border-blue-400 px-4 text-xs uppercase tracking-widest text-blue-100 hover:bg-blue-500 disabled:opacity-40"
           >
             {pending ? "Placing…" : confirmLabel}
           </button>

@@ -293,7 +293,7 @@ export function GoalsEditor({
                       />
                       <div
                         className={`text-sm ${
-                          active ? "text-blue-100" : "text-blue-50"
+                          active ? "text-blue-600" : "text-blue-50"
                         }`}
                       >
                         {opt.title}

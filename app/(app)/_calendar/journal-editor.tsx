@@ -36,7 +36,7 @@ export function JournalEditor({
       role="dialog"
       aria-modal="true"
       aria-label="Edit journal"
-      className="fixed inset-0 z-40 flex items-center justify-center bg-ink-0/70 animate-fadein"
+      className="fixed inset-0 z-40 flex items-center justify-center bg-ink-3/70 animate-fadein"
       onClick={onCancel}
     >
       <div
@@ -63,7 +63,7 @@ export function JournalEditor({
             type="button"
             disabled={pending}
             onClick={() => onSave(journal)}
-            className="tap-target border border-blue-400 px-4 text-xs uppercase tracking-widest text-blue-100 hover:bg-blue-400 hover:text-ink-0 disabled:opacity-40"
+            className="tap-target bg-blue-400 border border-blue-400 px-4 text-xs uppercase tracking-widest text-blue-100 hover:bg-blue-500 disabled:opacity-40"
           >
             {pending ? "Saving…" : "Save"}
           </button>

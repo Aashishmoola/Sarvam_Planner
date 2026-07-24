@@ -14,7 +14,7 @@ export function PrevNextNav({
       <Link
         href={`/day/${prevDate}`}
         aria-label="Previous day"
-        className="tap-target inline-flex items-center justify-center border border-gray-soft px-3 text-sm text-blue-50 transition-colors hover:border-blue-400 hover:text-blue-100"
+        className="tap-target inline-flex items-center justify-center border border-gray-soft px-3 text-sm text-blue-50 transition-colors hover:border-blue-400 hover:text-blue-400"
       >
         ←
       </Link>
@@ -23,7 +23,7 @@ export function PrevNextNav({
         <Link
           href={`/day/${nextDate}`}
           aria-label="Next day"
-          className="tap-target inline-flex items-center justify-center border border-gray-soft px-3 text-sm text-blue-50 transition-colors hover:border-blue-400 hover:text-blue-100"
+          className="tap-target inline-flex items-center justify-center border border-gray-soft px-3 text-sm text-blue-50 transition-colors hover:border-blue-400 hover:text-blue-400"
         >
           →
         </Link>

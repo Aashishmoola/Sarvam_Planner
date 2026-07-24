@@ -63,7 +63,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={status === "sending" || !email}
-              className="tap-target mt-6 w-full border border-blue-400 py-3 text-sm tracking-wide text-blue-100 transition-colors hover:bg-blue-400 hover:text-ink-0 disabled:opacity-40"
+              className="tap-target mt-6 w-full bg-blue-400 border border-blue-400 py-3 text-sm tracking-wide text-blue-100 transition-colors hover:bg-blue-500 disabled:opacity-40"
             >
               {status === "sending" ? "Sending…" : "Send magic link"}
             </button>
