@@ -28,7 +28,7 @@ Minimalist goal-setting & completion-tracking browser app for highly neurotic, l
    supabase/migrations/0001_initial_schema.sql
    ```
 
-3. Copy env template and fill in your project's URL and anon key
+3. Copy env template and fill in your project's URL and publishable key
    ```bash
    cp .env.local.example .env.local
    # edit .env.local
@@ -49,7 +49,7 @@ Minimalist goal-setting & completion-tracking browser app for highly neurotic, l
 - **Phase A** (current) — Scaffold, auth, DB schema.
 - **Phase B** — Onboarding + goal/motto/focus-hour CRUD.
 - **Phase C** — Daily calendar (tap-to-place), check-off, journaling.
-- **Phase D** — Push notifications + morning check-in + noon auto-fail cron.
+- **Phase D** — Push notifications + morning check-in + midnight auto-fail cron.
 - **Phase E** — Adjustment engine (promotion/demotion, cycle rollover).
 - **Phase F** — Polish, a11y, device tests.
 

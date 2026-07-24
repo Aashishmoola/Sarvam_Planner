@@ -468,7 +468,7 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
    ```
 2. **`.env.local` overwriting**: When you run `npm run build` to check types, **do not** write placeholder values to `.env.local` — that clobbers the user's real Supabase credentials and the app breaks on next `npm run dev`. Instead:
    - Read `.env.local` first, save its contents.
-   - Set placeholder env vars inline for that build command only, e.g. `NEXT_PUBLIC_SUPABASE_URL=https://x.supabase.co NEXT_PUBLIC_SUPABASE_ANON_KEY=x npm run build` — this way the file is untouched.
+   - Set placeholder env vars inline for that build command only, e.g. `NEXT_PUBLIC_SUPABASE_URL=https://x.supabase.co NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=x npm run build` — this way the file is untouched.
    - If `.env.local` doesn't exist at all, that's the only case where you can safely create it — but delete it after the build.
 3. **Route groups vs URL segments**: `(auth)` and `(app)` in the app dir are **route groups** — they don't add to the URL. Real URL segments must live in non-parenthesized folders (see [app/auth/callback/route.ts](../app/auth/callback/route.ts) — that's a real `/auth/callback`, not `/(auth)/callback`).
 4. **Server actions cannot be exported from client components** — put them in a separate `actions.ts` and import into the client component.
