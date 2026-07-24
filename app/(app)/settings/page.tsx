@@ -7,6 +7,7 @@ const SECTIONS = [
   { href: "/settings/focus-hours", title: "Focus hours", desc: "Your high- and low-focus windows" },
   { href: "/settings/goals", title: "Goals", desc: "Long-term and short-term goals" },
   { href: "/settings/mottos", title: "Mottos", desc: "The five lines cycled on morning check-in" },
+  { href: "/settings/notifications", title: "Notifications", desc: "Morning nudge, push subscription, device status" },
 ];
 
 export default async function SettingsPage() {

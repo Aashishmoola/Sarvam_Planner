@@ -1,0 +1,13 @@
+# Supabase CLI project config.
+# Replace <your-project-ref> with your project ref
+# (Dashboard → Project Settings → Reference ID).
+
+project_id = "<your-project-ref>"
+
+# Scheduled Edge Functions are invoked by the Supabase scheduler, not by
+# browser clients, so JWT verification is off (the scheduler authenticates).
+[functions.midnight-autofail]
+verify_jwt = false
+
+[functions.daily-checkin-push]
+verify_jwt = false
